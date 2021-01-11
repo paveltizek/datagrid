@@ -434,6 +434,8 @@ class DataGrid extends Control
 	 */
 	private $componentFullName;
 
+	protected bool $fetchJoinCollection = true;
+
 
 	public function __construct(?IContainer $parent = null, ?string $name = null)
 	{
@@ -640,7 +642,8 @@ class DataGrid extends Control
 	 */
 	public function setDataSource($source): self
 	{
-		$this->dataModel = new DataModel($source, $this->primaryKey);
+		$this->dataModel = new DataModel($source, $this->primaryKey, $this->fetchJoinCollection);
+
 
 		$this->dataModel->onBeforeFilter[] = [$this, 'beforeDataModelFilter'];
 		$this->dataModel->onAfterFilter[] = [$this, 'afterDataModelFilter'];
@@ -3323,5 +3326,16 @@ class DataGrid extends Control
 	{
 		return $this->getPresenter();
 	}
+
+	/**
+	 * @param bool $fetchJoinCollection
+	 * @return DataGrid
+	 */
+	public function setFetchJoinCollection( bool $fetchJoinCollection ): DataGrid {
+		$this->fetchJoinCollection = $fetchJoinCollection;
+		return $this;
+	}
+
+
 
 }

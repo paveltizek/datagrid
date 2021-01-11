@@ -59,7 +59,7 @@ final class DataModel
 	/**
 	 * @param mixed $source
 	 */
-	public function __construct($source, string $primaryKey)
+	public function __construct($source, string $primaryKey, bool $fetchJoinCollection = true)
 	{
 		if ($source instanceof IDataSource) {
 			/**
@@ -98,6 +98,7 @@ final class DataModel
 			}
 		} elseif ($source instanceof QueryBuilder) {
 			$source = new DoctrineDataSource($source, $primaryKey);
+			$source->setFetchJoinCollection($fetchJoinCollection);
 
 		} elseif ($source instanceof Collection) {
 			$source = new DoctrineCollectionDataSource($source, $primaryKey);
