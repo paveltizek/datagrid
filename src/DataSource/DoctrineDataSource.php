@@ -111,7 +111,6 @@ class DoctrineDataSource extends FilterableDataSource implements IDataSource, IA
 	public function getData(): array
 	{
 		if ($this->usePaginator()) {
-			\Tracy\Debugger::barDump($this->fetchJoinCollection, '$this->fetchJoinCollection');
 			$iterator = (new Paginator($this->getQuery(), $this->fetchJoinCollection))->getIterator();
 
 			$data = iterator_to_array($iterator);
