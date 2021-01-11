@@ -56,6 +56,9 @@ class DoctrineDataSource extends FilterableDataSource implements IDataSource, IA
 	 */
 	protected $placeholder;
 
+	protected $fetchJoinCollection = true;
+
+
 
 	public function __construct(QueryBuilder $dataSource, string $primaryKey)
 	{
@@ -63,6 +66,17 @@ class DoctrineDataSource extends FilterableDataSource implements IDataSource, IA
 		$this->dataSource = $dataSource;
 		$this->primaryKey = $primaryKey;
 	}
+
+
+	/**
+	 * @param bool $fetchJoinCollection
+	 * @return DoctrineDataSource
+	 */
+	public function setFetchJoinCollection( bool $fetchJoinCollection = true ): DoctrineDataSource {
+		$this->fetchJoinCollection = $fetchJoinCollection;
+		return $this;
+	}
+
 
 
 	public function getQuery(): Query
@@ -96,7 +110,8 @@ class DoctrineDataSource extends FilterableDataSource implements IDataSource, IA
 	public function getData(): array
 	{
 		if ($this->usePaginator()) {
-			$iterator = (new Paginator($this->getQuery(), false))->getIterator();
+			\Tracy\Debugger::barDump($this->fetchJoinCollection, '$this->fetchJoinCollection');
+			$iterator = (new Paginator($this->getQuery(), $this->fetchJoinCollection))->getIterator();
 
 			$data = iterator_to_array($iterator);
 		} else {
