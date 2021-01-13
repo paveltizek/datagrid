@@ -72,7 +72,7 @@ class FunctionSum implements ISingleColumnAggregationFunction
 				->setMaxResults(1)
 				->setFirstResult(0)
 				->getQuery()
-				->getSingleScalarResult();
+				->getOneOrNullResult();
 		}
 
 		if ($dataSource instanceof Collection) {
