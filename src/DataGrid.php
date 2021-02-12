@@ -45,6 +45,7 @@ use Ublaboo\DataGrid\Export\ExportCsv;
 use Ublaboo\DataGrid\Filter\Filter;
 use Ublaboo\DataGrid\Filter\FilterDate;
 use Ublaboo\DataGrid\Filter\FilterDateRange;
+use Ublaboo\DataGrid\Filter\FilterDateRangeAlt;
 use Ublaboo\DataGrid\Filter\FilterMultiSelect;
 use Ublaboo\DataGrid\Filter\FilterRange;
 use Ublaboo\DataGrid\Filter\FilterSelect;
@@ -1169,6 +1170,24 @@ class DataGrid extends Control
 	}
 
 
+	/**
+	 * @throws DataGridException
+	 */
+	public function addFilterDateRangeAlt(
+		string $key,
+		string $name,
+		?string $column = null,
+		string $nameSecond = '-'
+	): FilterDateRangeAlt
+	{
+		$column = $column ?? $key;
+
+		$this->addFilterCheck($key);
+
+		return $this->filters[$key] = new FilterDateRangeAlt($this, $key, $name, $column, $nameSecond);
+	}
+
+
 
 
 
@@ -1304,9 +1323,30 @@ class DataGrid extends Control
 			}
 
 			if ($filter instanceof FilterRange || $filter instanceof FilterDateRange) {
+				\Tracy\Debugger::barDump("here", '"here"');
 				if (!is_array($value)) {
 					throw new DataGridException(
 						sprintf('Default value of filter [%s] - Range/DateRange has to be an array [from/to => ...]', $key)
+					);
+				}
+
+				$temp = $value;
+				unset($temp['from'], $temp['to']);
+
+				if (count($temp) > 0) {
+					throw new DataGridException(
+						sprintf(
+							'Default value of filter [%s] - Range/DateRange can contain only [from/to => ...] values',
+							$key
+						)
+					);
+				}
+			}
+
+			if ($filter instanceof FilterRange || $filter instanceof FilterDateRangeAlt) {
+				if (!is_array($value)) {
+					throw new DataGridException(
+						sprintf('Default value of filter [%s] - Range/DateRangeAlt has to be an array [from/to => ...]', $key)
 					);
 				}
 
@@ -1509,8 +1549,12 @@ class DataGrid extends Control
 		/**
 		 * Per page
 		 */
-		$this->saveSessionData('_grid_perPage', $values['perPage']);
-		$this->perPage = $values['perPage'];
+		if (isset($values["perPage"])) {
+			$this->saveSessionData('_grid_perPage', $values['perPage']);
+		}
+		if (isset($values['perPage'])) {
+			$this->perPage = $values['perPage'];
+		}
 
 		/**
 		 * Inline edit
@@ -1617,6 +1661,7 @@ class DataGrid extends Control
 			 */
 			$this->filter[$key] = $value;
 		}
+
 
 		if ($values->count() > 0) {
 			$this->saveSessionData('_grid_has_filtered', 1);
