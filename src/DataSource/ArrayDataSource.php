@@ -92,7 +92,7 @@ class ArrayDataSource implements IDataSource
 	{
 		foreach ($this->data as $item) {
 			foreach ($condition as $key => $value) {
-				if ($item[$key] === $value) {
+				if ($item[$key] === (int)$value) {
 					$this->setData([$item]);
 
 					return $this;
