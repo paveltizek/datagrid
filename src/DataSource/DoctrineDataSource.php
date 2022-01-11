@@ -345,7 +345,7 @@ class DoctrineDataSource extends FilterableDataSource implements IDataSource, IA
 	/**
 	 * {@inheritDoc}
 	 */
-	protected function getDataSource()
+	public function getDataSource()
 	{
 		return $this->dataSource;
 	}
