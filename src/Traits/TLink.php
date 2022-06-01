@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ublaboo\DataGrid\Traits;
 
 use InvalidArgumentException;
-use Nette;
 use Nette\Application\UI\Component;
 use Nette\Application\UI\InvalidLinkException;
 use Nette\Application\UI\Presenter;
@@ -33,12 +32,6 @@ trait TLink
 
 		$presenter = $grid->getPresenter();
 
-		if (!$presenter instanceof Presenter) {
-			throw new UnexpectedValueException(
-				sprintf('%s needs instanceof %s', self::class, Presenter::class)
-			);
-		}
-
 		if (strpos($href, ':') !== false) {
 			return $presenter->link($href, $params);
 		}
@@ -52,10 +45,7 @@ trait TLink
 
 			try {
 				$link = $targetComponent->link($href, $params);
-
 			} catch (InvalidLinkException $e) {
-				$link = false;
-			} catch (Nette\InvalidArgumentException $e) {
 				$link = false;
 			}
 
@@ -88,9 +78,9 @@ trait TLink
 		$parent = $grid->getParent();
 		$presenter = $grid->getPresenter();
 
-		if ($parent === null || $presenter === null) {
+		if ($parent === null) {
 			throw new UnexpectedValueException(
-				sprintf('%s can not live withnout a parent component or presenter', self::class)
+				sprintf('%s can not live withnout a parent component', self::class)
 			);
 		}
 

@@ -481,13 +481,7 @@ class DataGrid extends Control
 				 * Get session
 				 */
 				if ($this->rememberState || $this->canHideColumns()) {
-					$sessionSection = $presenter->getSession($this->getSessionSectionName());
-
-					if (!$sessionSection instanceof SessionSection) {
-						throw new \UnexpectedValueException;
-					}
-
-					$this->gridSession = $sessionSection;
+					$this->gridSession = $presenter->getSession($this->getSessionSectionName());
 				}
 
 				$this->componentFullName = $this->lookupPath();
@@ -529,11 +523,15 @@ class DataGrid extends Control
 		 */
 		$rows = [];
 
-		$items = $this->redrawItem !== [] ? $this->dataModel->filterRow($this->redrawItem) : $this->dataModel->filterData(
-			$this->getPaginator(),
-			$this->createSorting($this->sort, $this->sortCallback),
-			$this->assembleFilters()
-		);
+		if ($this->redrawItem !== []) {
+			$items = $this->dataModel->filterRow($this->redrawItem);
+		} else {
+			$items = $this->dataModel->filterData(
+				$this->getPaginator(),
+				$this->createSorting($this->sort, $this->sortCallback),
+				$this->assembleFilters()
+			);
+		}
 
 		$hasGroupActionOnRows = false;
 
@@ -1468,15 +1466,17 @@ class DataGrid extends Control
 		/**
 		 * Per page part
 		 */
-		$select = $form->addSelect('perPage', '', $this->getItemsPerPageList())
-			->setTranslator(null);
+		if ($this->isPaginated()) {
+			$select = $form->addSelect('perPage', '', $this->getItemsPerPageList())
+				->setTranslator(null);
 
-		if ($form->isSubmitted() === false) {
-			$select->setValue($this->getPerPage());
+			if ($form->isSubmitted() === false) {
+				$select->setValue($this->getPerPage());
+			}
+
+			$form->addSubmit('perPage_submit', 'ublaboo_datagrid.per_page_submit')
+				->setValidationScope([$select]);
 		}
-
-		$form->addSubmit('perPage_submit', 'ublaboo_datagrid.per_page_submit')
-			->setValidationScope([$select]);
 
 		$form->onSubmit[] = function (NetteForm $form): void {
 			$this->filterSucceeded($form);
@@ -1538,7 +1538,7 @@ class DataGrid extends Control
 			return;
 		}
 
-		$values = (array) $form->getValues();
+		$values = (array) $form->getUnsafeValues(null);
 
 		if ($this->getPresenterInstance()->isAjax()) {
 			if (isset($form['group_action']['submit']) && $form['group_action']['submit']->isSubmittedBy()) {
@@ -2574,13 +2574,7 @@ class DataGrid extends Control
 	public function getPaginator(): ?DataGridPaginator
 	{
 		if ($this->isPaginated() && $this->perPage !== 'all') {
-			$paginator = $this['paginator'];
-
-			if (!$paginator instanceof DataGridPaginator) {
-				throw new \UnexpectedValueException;
-			}
-
-			return $paginator;
+			return $this['paginator'];
 		}
 
 		return null;
@@ -2939,11 +2933,6 @@ class DataGrid extends Control
 			$primaryWhereColumn = $this->inlineEdit->getPrimaryWhereColumn();
 
 			$filterContainer = $this['filter'];
-
-			if (!$filterContainer instanceof Container) {
-				throw new \UnexpectedValueException;
-			}
-
 			$inlineEditContainer = $filterContainer['inline_edit'];
 
 			if (!$inlineEditContainer instanceof Container) {
@@ -3378,13 +3367,7 @@ class DataGrid extends Control
 
 	private function getPresenterInstance(): Presenter
 	{
-		$presenter = $this->getPresenter();
-
-		if (!$presenter instanceof Presenter) {
-			throw new \UnexpectedValueException;
-		}
-
-		return $presenter;
+		return $this->getPresenter();
 	}
 
 	/**
