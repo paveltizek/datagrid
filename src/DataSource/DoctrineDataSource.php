@@ -74,13 +74,12 @@ class DoctrineDataSource extends FilterableDataSource implements IDataSource, IA
 
 
 	/**
-
 	 * @param bool $fetchJoinCollection
 	 * @return DoctrineDataSource
 	 */
 	public function setFetchJoinCollection( bool $fetchJoinCollection = true ): DoctrineDataSource {
 		$this->fetchJoinCollection = $fetchJoinCollection;
-
+		return $this;
 	}
 
 	public function setQueryHint(string $name, $value): IDataSource
