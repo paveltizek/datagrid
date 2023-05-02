@@ -59,6 +59,10 @@ class DoctrineDataSource extends FilterableDataSource implements IDataSource, IA
 
 	protected $fetchJoinCollection = true;
 
+	/**
+	 * @var array<string, mixed>
+	 */
+	protected $hints = [];
 
 
 	public function __construct(QueryBuilder $dataSource, string $primaryKey)
@@ -70,11 +74,19 @@ class DoctrineDataSource extends FilterableDataSource implements IDataSource, IA
 
 
 	/**
+
 	 * @param bool $fetchJoinCollection
 	 * @return DoctrineDataSource
 	 */
 	public function setFetchJoinCollection( bool $fetchJoinCollection = true ): DoctrineDataSource {
 		$this->fetchJoinCollection = $fetchJoinCollection;
+
+	}
+
+	public function setQueryHint(string $name, $value): IDataSource
+	{
+		$this->hints[$name] = $value;
+
 		return $this;
 	}
 
@@ -82,7 +94,13 @@ class DoctrineDataSource extends FilterableDataSource implements IDataSource, IA
 
 	public function getQuery(): Query
 	{
-		return $this->dataSource->getQuery();
+		$query = $this->dataSource->getQuery();
+
+		foreach ($this->hints as $name => $value) {
+			$query->setHint($name, $value);
+		}
+
+		return $query;
 	}
 
 
